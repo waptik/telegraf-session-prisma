@@ -19,7 +19,7 @@ $ yarn add telegraf-session-prisma
 ```js
 const { Telegraf } = require('telegraf');
 const { PrismaClient } = require('@prisma/client');
-const { session } = require('telegraf-session-prisma');
+const { session } = require('@waptik/telegraf-session-prisma');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -35,7 +35,7 @@ bot.use(session(db, { sessionName: 'session', collectionName: 'sessions' }));
 ```ts
 import { Context, Telegraf } from 'telegraf';
 import { PrismaClient } from "@prisma/client"
-import { session } from 'telegraf-session-mongodb';
+import { session } from '@waptik/telegraf-session-mongodb';
 
 export interface SessionContext extends Context {
   session: any;
@@ -52,6 +52,15 @@ bot.use(session(db, { sessionName: 'session', collectionName: 'sessions' }));
 
 ### Options
 
-* `collectionName`: name for MongoDB collection (default: `sessions`)
+* `modelName`: name for MongoDB collection (default: `sessions`)
 * `sessionName`: context property name (default: `session`)
 * `sessionKeyFn`: function that generates the session key from the context ([default implementation](https://github.com/waptik/telegraf-session-prisma/blob/master/src/keys.ts#L10-L16), [legacy deprecated function](https://github.com/waptik/telegraf-session-prisma/blob/master/src/keys.ts#L21-L31))
+
+### Destroying a session
+To destroy a session simply set it to undefined (or another falsy value).
+
+```js
+bot.on('text', ctx => {
+    ctx.session = undefined
+})
+```

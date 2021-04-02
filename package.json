@@ -1,5 +1,5 @@
 {
-  "name": "telegraf-session-prisma",
+  "name": "@waptik/telegraf-session-prisma",
   "version": "1.0.0",
   "description": "Prisma client session middleware for Telegraf",
   "main": "dist/index.js",
@@ -7,8 +7,8 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc",
-    "build:clean": "npm run clean && npm run build",
-    "prepublish": "npm run build:clean",
+    "build:clean": "yarn clean && yarn build",
+    "prepublish": "yarn build:clean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
