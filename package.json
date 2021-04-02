@@ -1,7 +1,7 @@
 {
-  "name": "telegraf-session-mongodb",
-  "version": "2.0.1",
-  "description": "MongoDB session middleware for Telegraf",
+  "name": "telegraf-session-prisma",
+  "version": "1.0.0",
+  "description": "Prisma client session middleware for Telegraf",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,32 +13,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/alexnzarov/telegraf-session-mongodb.git"
+    "url": "git+ssh://git@github.com/waptik/telegraf-session-prisma.git"
   },
   "keywords": [
     "telegraf",
-    "mongo",
-    "mongodb",
+    "@prisma/client",
+    "prisma",
     "telegraf-session",
     "telegram",
     "middleware",
     "bot"
   ],
   "author": {
-    "name": "alexnzarov",
-    "email": "alexnzarov@gmail.com"
+    "name": "waptik"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alexnzarov/telegraf-session-mongodb/issues"
+    "url": "https://github.com/waptik/telegraf-session-prisma/issues"
   },
-  "homepage": "https://github.com/alexnzarov/telegraf-session-mongodb#readme",
-  "dependencies": {
-    "mongodb": "^3.6.4"
-  },
+  "homepage": "https://github.com/waptik/telegraf-session-prisma#readme",
   "devDependencies": {
-    "@types/mongodb": "^3.6.8",
-    "telegraf": "^4.1.1",
-    "typescript": "^4.2.2"
+    "@prisma/client": "^2.20.1",
+    "@types/node": "^14.14.37",
+    "telegraf": "^4.3.0",
+    "typescript": "4.2.2"
   }
 }

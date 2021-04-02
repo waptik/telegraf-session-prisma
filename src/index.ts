@@ -1,38 +1,66 @@
-import { Db } from 'mongodb';
-import { Context, MiddlewareFn } from 'telegraf';
-import { getSessionKey, SessionKeyFunction } from './keys';
+/**
+* Telegraf session using Prisma as datastore
+* @author gh:waptik
+**/
 
-export type SessionOptions = {
-    sessionName: string;
-    collectionName: string;
-    sessionKeyFn: SessionKeyFunction;
-};
 
-export const session = <C extends Context = Context>(db: Db, sessionOptions?: Partial<SessionOptions>): MiddlewareFn<C> => {
-    const options: SessionOptions = { 
-        sessionName: 'session', 
-        collectionName: 'sessions', 
-        sessionKeyFn: getSessionKey,
-        ...sessionOptions 
-    };
+import type { Context, Middleware } from "telegraf"
+import { PrismaClient } from "@prisma/client"
 
-    const collection = db.collection(options.collectionName);
+ type SessionOptions<C> = {
+  sessionName: string
+  modelName: string
+  sessionKeyFn: (ctx: C) => string | undefined
+}
 
-    const saveSession = (key: string, data: any) => collection.updateOne({ key }, { $set: { data } }, { upsert: true });
-    const getSession = async (key: string) => (await collection.findOne({ key }))?.data ?? {};
+export const session = <C extends Context>(
+  db: PrismaClient,
+  sessionOptions?: Partial<SessionOptions<C>>
+): Middleware<C> => {
+  const options: SessionOptions<C> = {
+    sessionName: "session",
+    modelName: 'session', 
+    sessionKeyFn: ({ from, chat }: C) =>  from && chat && `${from.id}:${chat.id}`,
+    ...sessionOptions,
+  }
 
-    const { sessionKeyFn: getKey, sessionName } = options;
+  const model = db[options.modelName]
 
-    return async (ctx: Context, next) => {
-        const key = getKey(ctx);
-        const data = key == null ? undefined : await getSession(key);
+  const saveSession = async (key: string, data: any) =>
+    await model.upsert({
+      where: {
+        key,
+      },
+      update: { data },
+      create: { key, data },
+    })
+  const getSession = async (key: string) => {
+    const res = await model.findUnique({ where: { key } })
+    return res?.data
+  }
 
-        ctx[sessionName] = data;
+  const { sessionName } = options
 
-        await next();
+  return async (ctx: C, next) => {
+    const key = options.sessionKeyFn(ctx)
 
-        if (ctx[sessionName] != null) {
-            await saveSession(key, ctx[sessionName]);
+    if(!key) {
+        return next?.()
+    }
+    
+    let data =  await getSession(key)
+
+    Object.defineProperty(ctx, sessionName, {
+        get: function () {
+            return data
+        },
+        set: function (value:any) {
+            data = Object.assign({}, value)
         }
-    };
+    })
+
+   let out = await next()
+    await saveSession(key, data)
+    return out
+  }
 }
